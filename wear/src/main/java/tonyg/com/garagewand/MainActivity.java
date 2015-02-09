@@ -3,6 +3,8 @@ package tonyg.com.garagewand;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
@@ -18,6 +20,14 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
     private static final String TAG = "GarageWand";
+    private final BluetoothGattServerCallback mBluetoothGattServerCallback = new BluetoothGattServerCallback() {
+        @Override
+        public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
+            super.onConnectionStateChange(device, status, newState);
+            Log.d(TAG, String.valueOf(device));
+        }
+    };
+
     private final AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback() {
         @SuppressLint("Override")
         @Override
@@ -66,6 +76,9 @@ public class MainActivity extends Activity {
         // Initializes Bluetooth adapter.
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+
+        bluetoothManager.openGattServer(getApplicationContext(), mBluetoothGattServerCallback);
+
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
         if (!mBluetoothAdapter.isMultipleAdvertisementSupported()) {
